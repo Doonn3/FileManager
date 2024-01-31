@@ -1,0 +1,14 @@
+{
+  "name": "filemanager",
+  "version": "1.0.0",
+  "description": "",
+  "private": "true",
+  "module": "true",
+  "main": "./FileManager/src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node FileManager/src/index.mjs"
+  },
+  "author": "Doonn",
+  "license": "ISC"
+}
