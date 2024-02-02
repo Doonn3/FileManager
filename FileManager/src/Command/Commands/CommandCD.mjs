@@ -8,7 +8,6 @@ export class CommandCD extends IExecuteValue {
     const result = this.#checkPathType(temp);
     if (result) {
       this.Manager.Path.CurrPath = value;
-      console.log(this.Manager.Path.CurrPath);
     }
   }
 
@@ -17,13 +16,10 @@ export class CommandCD extends IExecuteValue {
       const stats = statSync(path);
 
       if (stats.isFile()) {
-        console.log("Это файл");
         return false;
       } else if (stats.isDirectory()) {
-        console.log("Это папка");
         return true;
       } else {
-        console.log("Неизвестный тип");
         return false;
       }
     } catch (error) {

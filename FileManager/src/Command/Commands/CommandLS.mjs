@@ -1,5 +1,5 @@
 import { IExecute } from "../Base/BaseCommand.mjs";
-import { readdir } from "fs/promises";
+import { readdir, stat } from "fs/promises";
 import { checkFile } from "../utils/utils.mjs";
 
 export class CommandLS extends IExecute {
@@ -19,18 +19,38 @@ export class CommandLS extends IExecute {
   }
 
   // TODO >> папки и файлы сортируются по алфавиту по возрастанию, но список папок идет первым
-  #printFilesTable(files) {
-    const zz = [];
-
+  async #printFilesTable(files) {
+    const data = [];
     for (const file of files) {
-      if (file.split(".").length > 1) {
-        zz.push({ Name: file, Type: "file" });
-      } else {
-        zz.push({ Name: file, Type: "directory" });
+      const result = stat(`${this.Manager.Path.CurrPath}/${file}`);
+      data.push({ promise: result, fileName: file });
+    }
+
+    const stats = await Promise.all(data.map((stat) => stat.promise));
+
+    const dataType = [];
+
+    for (let i = 0; i < files.length; i += 1) {
+      const file = files[i];
+      const fileStat = stats[i];
+      if (fileStat.isFile()) {
+        dataType.push({ Name: file, Type: "file" });
+      } else if (fileStat.isDirectory()) {
+        dataType.push({ Name: file, Type: "directory" });
       }
     }
 
+    dataType.sort((a, b) => {
+      if (a.Type === "directory" && b.Type !== "directory") {
+        return -1;
+      } else if (a.Type !== "directory" && b.Type === "directory") {
+        return 1;
+      } else {
+        return a.Name.localeCompare(b.Name); // Если типы элементов одинаковы, сортируем их по алфавиту
+      }
+    });
+
     console.log();
-    console.table(zz);
+    console.table(dataType);
   }
 }
