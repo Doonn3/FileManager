@@ -1,4 +1,4 @@
-export class CommandList {
+export class CommandContainer {
   #command = new Map();
 
   addCommand(key, command) {

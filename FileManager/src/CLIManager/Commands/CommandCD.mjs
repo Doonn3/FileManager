@@ -1,4 +1,4 @@
-import { IExecuteValue } from "../Base/BaseCommand.mjs";
+import { IExecuteValue } from "./BaseCommand.mjs";
 
 import { statSync } from "fs";
 

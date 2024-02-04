@@ -1,4 +1,4 @@
-import { IExecute } from "../Base/BaseCommand.mjs";
+import { IExecute } from "./BaseCommand.mjs";
 import { readdir, stat } from "fs/promises";
 import { checkFile } from "../utils/utils.mjs";
 

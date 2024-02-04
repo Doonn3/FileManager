@@ -1,4 +1,4 @@
-import { IExecuteValue } from "../Base/BaseCommand.mjs";
+import { IExecuteValue } from "./BaseCommand.mjs";
 import { rename } from "fs/promises";
 import { newParseCommand, checkFile } from "../utils/utils.mjs";
 

@@ -1,4 +1,4 @@
-import { IExecuteValue } from "../Base/BaseCommand.mjs";
+import { IExecuteValue } from "./BaseCommand.mjs";
 import { EOL, cpus, homedir, hostname, arch } from "os";
 import { printInvalidInput } from "../utils/utils.mjs";
 

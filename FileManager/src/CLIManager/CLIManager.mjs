@@ -1,66 +1,57 @@
-import path, { dirname } from "path";
-
-const __dirname = dirname(import.meta.url);
-
-import { CommandList } from "./List/CommandList.mjs";
+import { CommandContainer } from "./CommandContainer/CommandContainer.mjs";
 import { CommandUp } from "./Commands/CommandUp.mjs";
 import { CommandCD } from "./Commands/CommandCD.mjs";
 import { CommandLS } from "./Commands/CommandLS.mjs";
-import { newParseCommand, parseCommand } from "./utils/utils.mjs";
+import { newParseCommand } from "./utils/utils.mjs";
 import { CommandAdd } from "./Commands/CommandAdd.mjs";
 import { CommandRM } from "./Commands/CommandRM.mjs";
 import { CommandRename } from "./Commands/CommandRename.mjs";
 import { CommandRead } from "./Commands/CommandRead.mjs";
 import { CommandOS } from "./Commands/CommandOS.mjs";
+import { CommandCopy } from "./Commands/CommandCopy.mjs";
+import { CommandMove } from "./Commands/CommandMove.mjs";
+import { CommandHashCalc } from "./Commands/CommandHashCalc.mjs";
+import consts from "./consts/consts.mjs";
 
 export class CLIManager {
-  #path = new Path();
+  #path = new PathController();
 
   get Path() {
     return this.#path;
   }
 
-  #commandList = new CommandList();
+  #commandContainer = new CommandContainer();
 
   Init() {
-    this.#commandList.addCommand("up", new CommandUp(this));
-    this.#commandList.addCommand("cd", new CommandCD(this));
-    this.#commandList.addCommand("ls", new CommandLS(this));
-    this.#commandList.addCommand("add", new CommandAdd(this));
-    this.#commandList.addCommand("rm", new CommandRM(this));
-    this.#commandList.addCommand("rn", new CommandRename(this));
-    this.#commandList.addCommand("cat", new CommandRead(this));
-    this.#commandList.addCommand("os", new CommandOS(this));
+    this.#commandContainer.addCommand(consts.UP, new CommandUp(this));
+    this.#commandContainer.addCommand(consts.CD, new CommandCD(this));
+    this.#commandContainer.addCommand(consts.LS, new CommandLS(this));
+    this.#commandContainer.addCommand(consts.ADD, new CommandAdd(this));
+    this.#commandContainer.addCommand(consts.RM, new CommandRM(this));
+    this.#commandContainer.addCommand(consts.RN, new CommandRename(this));
+    this.#commandContainer.addCommand(consts.CAT, new CommandRead(this));
+    this.#commandContainer.addCommand(consts.OS, new CommandOS(this));
+    this.#commandContainer.addCommand(consts.CP, new CommandCopy(this));
+    this.#commandContainer.addCommand(consts.MV, new CommandMove(this));
+    this.#commandContainer.addCommand(consts.HASH, new CommandHashCalc(this));
   }
 
   Execute(data) {
-    // const result = parseCommand(data);
-
-    // if (result.params) {
-    //   const command = this.#commandList.getCommand(result.command);
-    //   if (command === null) return;
-    //   command.Execute(result.params);
-    // } else {
-    //   const command = this.#commandList.getCommand(result.command);
-    //   if (command === null) return;
-    //   command.Execute();
-    // }
     const result = newParseCommand(data);
 
     if (result.params.length > 0) {
-      const command = this.#commandList.getCommand(result.command);
+      const command = this.#commandContainer.getCommand(result.command);
       if (command === null) return;
       command.Execute(result.params);
     } else {
-      const command = this.#commandList.getCommand(result.command);
+      const command = this.#commandContainer.getCommand(result.command);
       if (command === null) return;
       command.Execute();
     }
   }
 }
 
-class Path {
-  // #rootPath = path.join(import.meta.url, "../../../RootDir");
+class PathController {
   #rootPath = "./FileManager/RootDir";
   #chunk = [];
   #currPath = this.#rootPath;

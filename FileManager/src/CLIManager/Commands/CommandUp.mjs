@@ -1,4 +1,4 @@
-import { IExecute } from "../Base/BaseCommand.mjs";
+import { IExecute } from "./BaseCommand.mjs";
 
 export class CommandUp extends IExecute {
   Execute() {
