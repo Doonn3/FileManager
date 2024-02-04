@@ -1,4 +1,4 @@
-import { ReadLine } from "./ReadLine.mjs";
+import { CLIApp } from "./CLIApp.mjs";
 
-const readLine = new ReadLine();
-readLine.ParseArgs(process.argv);
+const app = new CLIApp();
+app.ParseArgs(process.argv);
