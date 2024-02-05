@@ -28,14 +28,16 @@ export class CommandAdd extends IExecuteValue {
     } else {
       writeFile(path, file)
         .then(() => console.log("file save"))
-        .catch((err) => console.log(`Error not save file <<${err}>>`));
+        .catch((err) => printOperationFailed());
     }
   }
 
   async #createFolder(folder) {
     const path = `${this.Manager.Path.CurrPath}/${folder}`;
     mkdir(path, (err) => {
-      if (err) throw err; // не удалось создать папку
+      if (err) {
+        printOperationFailed();
+      }
       console.log("Папка успешно создана");
     });
   }
