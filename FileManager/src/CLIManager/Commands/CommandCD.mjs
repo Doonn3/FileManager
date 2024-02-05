@@ -28,7 +28,8 @@ export class CommandCD extends IExecuteValue {
     const temp = this.Manager.Path.CurrPath + "/" + param;
     const result = await this.#statusPath(temp);
     if (result) {
-      this.Manager.Path.CurrPath = param;
+      // this.Manager.Path.CurrPath = param;
+      this.Manager.Path.SetCurrPath(param);
     }
   }
 

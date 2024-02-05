@@ -14,13 +14,20 @@ import { CommandHashCalc } from "./Commands/CommandHashCalc.mjs";
 import consts from "./consts/consts.mjs";
 
 export class CLIManager {
-  #path = new PathController();
+  #path;
+
+  #app;
 
   get Path() {
     return this.#path;
   }
 
   #commandContainer = new CommandContainer();
+
+  constructor(app) {
+    this.#app = app;
+    this.#path = new PathController(app);
+  }
 
   Init() {
     this.#commandContainer.addCommand(consts.UP, new CommandUp(this));
@@ -65,6 +72,11 @@ class PathController {
   #chunk = [];
   #currPath = this.#rootPath;
 
+  #app;
+  constructor(app) {
+    this.#app = app;
+  }
+
   get RootPath() {
     return this.#rootPath;
   }
@@ -77,7 +89,20 @@ class PathController {
     if (path === undefined || path === "") return;
     this.#chunk.push(path);
 
-    this.#currPath = this.#rootPath + this.#chunk.map((p) => `/${p}`).join("");
+    const p = this.#rootPath + this.#chunk.map((p) => `/${p}`).join("");
+    this.#currPath = p;
+
+    console.log('asdasd');
+    this.#app.Print();
+  }
+
+  SetCurrPath(path) {
+    if (path === undefined || path === "") return;
+    this.#chunk.push(path);
+
+    const p = this.#rootPath + this.#chunk.map((p) => `/${p}`).join("");
+    this.#currPath = p;
+    this.#app.Print();
   }
 
   PrevPath() {
@@ -85,7 +110,7 @@ class PathController {
 
     this.#chunk.pop();
 
-    const p = this.#chunk.map((p) => `/${p}`).join('');
+    const p = this.#chunk.map((p) => `/${p}`).join("");
 
     this.#currPath = this.#rootPath + p;
     return this.#currPath;

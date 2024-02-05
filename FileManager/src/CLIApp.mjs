@@ -38,7 +38,7 @@ class ReadLineProcessInput {
     output: process.stdout,
   });
 
-  #manager = new CLIManager();
+  #manager = new CLIManager(this);
 
   #userName = "";
 
@@ -52,7 +52,9 @@ class ReadLineProcessInput {
 
     this.#rl.on("line", this.#processInput);
     this.#rl.on("SIGINT", () => {
-      console.log(`Thank you for using File Manager, ${this.#userName}, goodbye!`);
+      console.log(
+        `Thank you for using File Manager, ${this.#userName}, goodbye!`
+      );
       this.#rl.close();
       process.exit();
     });
@@ -60,7 +62,9 @@ class ReadLineProcessInput {
 
   #processInput = (input) => {
     if (input === ".exit") {
-      console.log(`Thank you for using File Manager, ${this.#userName}, goodbye!`);
+      console.log(
+        `Thank you for using File Manager, ${this.#userName}, goodbye!`
+      );
       this.#rl.close();
       process.exit();
     }
@@ -79,4 +83,8 @@ class ReadLineProcessInput {
 
     this.#rl.prompt();
   };
+
+  Print() {
+    this.#printPromt();
+  }
 }
