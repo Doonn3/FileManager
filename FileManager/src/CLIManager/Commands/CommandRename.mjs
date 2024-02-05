@@ -1,12 +1,13 @@
 import { IExecuteValue } from "./BaseCommand.mjs";
 import { rename } from "fs/promises";
-import { newParseCommand, checkAccess } from "../utils/utils.mjs";
+import {
+  newParseCommand,
+  checkAccess,
+  printOperationFailed,
+} from "../utils/utils.mjs";
 
 export class CommandRename extends IExecuteValue {
   async Execute(value) {
-    // const result = newParseCommand(value);
-    // console.log("RENAME COMMAND>>", result);
-    console.log("RENAME COMMAND>>", value);
     this.#renameFile(value[0], value[1]);
   }
 
@@ -18,24 +19,19 @@ export class CommandRename extends IExecuteValue {
       const input = await checkAccess(oldPath);
       const out = await checkAccess(newPath);
 
-      console.log(input);
-
       if (input === false) {
         console.log("Входного файла не существует.");
-        new Error("FS operation failed");
-        return;
+        throw new Error("FS operation failed");
       }
 
       if (out) {
         console.log("Такой файл с именем и расширением существует.");
         throw new Error("FS operation failed");
       } else {
-        console.log("Переименовываем....");
         rename(oldPath, newPath);
       }
     } catch (err) {
-      console.error(err);
-      new Error(err);
+      printOperationFailed();
     }
   }
 }
