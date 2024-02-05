@@ -52,15 +52,15 @@ class ReadLineProcessInput {
 
     this.#rl.on("line", this.#processInput);
     this.#rl.on("SIGINT", () => {
-      console.log("Thank you for using File Manager, Username, goodbye!");
+      console.log(`Thank you for using File Manager, ${this.#userName}, goodbye!`);
       this.#rl.close();
       process.exit();
     });
   }
 
   #processInput = (input) => {
-    if (input === "exit") {
-      console.log("Thank you for using File Manager, Username, goodbye!");
+    if (input === ".exit") {
+      console.log(`Thank you for using File Manager, ${this.#userName}, goodbye!`);
       this.#rl.close();
       process.exit();
     }

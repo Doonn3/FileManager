@@ -85,7 +85,7 @@ class PathController {
 
     this.#chunk.pop();
 
-    const p = this.#chunk.map((p) => `/${p}`).join();
+    const p = this.#chunk.map((p) => `/${p}`).join('');
 
     this.#currPath = this.#rootPath + p;
     return this.#currPath;
