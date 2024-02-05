@@ -34,25 +34,34 @@ export class CLIManager {
     this.#commandContainer.addCommand(consts.CP, new CommandCopy(this));
     this.#commandContainer.addCommand(consts.MV, new CommandMove(this));
     this.#commandContainer.addCommand(consts.HASH, new CommandHashCalc(this));
+    this.#commandContainer.addCommand(
+      consts.COMPRESS,
+      new CommandCompress(this)
+    );
+    this.#commandContainer.addCommand(
+      consts.DE_COMPRESS,
+      new CommandDeCompress(this)
+    );
   }
 
   Execute(data) {
     const result = newParseCommand(data);
 
-    if (result.params.length > 0) {
-      const command = this.#commandContainer.getCommand(result.command);
-      if (command === null) return;
-      command.Execute(result.params);
-    } else {
-      const command = this.#commandContainer.getCommand(result.command);
-      if (command === null) return;
-      command.Execute();
-    }
+    const command = this.#commandContainer.getCommand(result.command);
+    if (command === null) return;
+    command.Execute(result.params);
   }
 }
 
+import path from "path";
+import { homedir } from "os";
+import { CommandCompress } from "./Commands/CommandCompress.mjs";
+import { CommandDeCompress } from "./Commands/CommandDeCompress.mjs";
+
 class PathController {
-  #rootPath = "./FileManager/RootDir";
+  // #rootPath = "./FileManager/RootDir";
+  // #rootPath = path.parse(process.cwd()).root;
+  #rootPath = homedir();
   #chunk = [];
   #currPath = this.#rootPath;
 
@@ -68,21 +77,17 @@ class PathController {
     if (path === undefined || path === "") return;
     this.#chunk.push(path);
 
-    this.#currPath = this.#rootPath + this.#chunk.map((p) => `/${p}`).join();
+    this.#currPath = this.#rootPath + this.#chunk.map((p) => `/${p}`).join("");
   }
 
   PrevPath() {
     if (this.#chunk.length < 1) return null;
-    console.log(this.#chunk);
-    const arr = this.#chunk.toReversed();
-    arr.pop();
 
-    const p = arr.map((p) => `/${p}`).join();
+    this.#chunk.pop();
 
-    this.#chunk = arr.toReversed();
+    const p = this.#chunk.map((p) => `/${p}`).join();
 
     this.#currPath = this.#rootPath + p;
-    console.log(this.#currPath);
     return this.#currPath;
   }
 }

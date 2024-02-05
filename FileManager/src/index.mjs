@@ -1,4 +1,4 @@
 import { CLIApp } from "./CLIApp.mjs";
 
 const app = new CLIApp();
-app.ParseArgs(process.argv);
+app.ParseArgs(process.argv.slice(2));

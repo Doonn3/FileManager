@@ -9,6 +9,8 @@ const OS = "os";
 const CP = "cp";
 const MV = "mv";
 const HASH = "hash";
+const COMPRESS = 'compress'
+const DE_COMPRESS = 'decompress'
 
 export default {
   UP,
@@ -22,4 +24,6 @@ export default {
   CP,
   MV,
   HASH,
+  COMPRESS,
+  DE_COMPRESS
 };

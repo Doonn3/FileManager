@@ -18,7 +18,7 @@ export function newParseCommand(value) {
   return props;
 }
 
-export async function checkFile(file) {
+export async function checkAccess(file) {
   try {
     await access(file);
     return true;
@@ -45,7 +45,26 @@ export function printOperationFailed() {
   log().red("Operation failed");
 }
 
-export async function checkStatus(path) {
+export async function checkStat(path) {
   const result = await stat(path);
   return result;
+}
+
+export function requiredParams(options, args) {
+  if (options.countParams === undefined || options.countParams < 1) return null;
+  let require = {};
+
+  args.forEach((param) => {
+    if (param.trim() !== "") {
+      require[param] = param;
+    }
+  });
+
+  const keys = Object.keys(require);
+
+  if (keys.length === 0 || keys.length > options.countParams) {
+    return null;
+  }
+
+  return require;
 }

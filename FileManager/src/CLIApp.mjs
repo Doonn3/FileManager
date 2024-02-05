@@ -1,53 +1,34 @@
 import { createInterface } from "readline";
 import { CLIManager } from "./CLIManager/CLIManager.mjs";
 import { WELCOM_FILE_MANAGER } from "./consts/consts.mjs";
-
-class StartParserArgs {
-  #command = "--username";
-
-  Parse(argv) {
-    let entryCommand = "";
-
-    for (const args of argv) {
-      if (args.startsWith("--")) {
-        entryCommand = args;
-        console.log(args, "ARGV");
-      }
-    }
-
-    const split = entryCommand.split("=");
-
-    if (split[0] === this.#command) {
-      const param = split[1] || null;
-      return param;
-    }
-
-    return null;
-  }
-}
+import { ParseArgs } from "./ParserArgs/ParserArgs.mjs";
 
 export class CLIApp {
   #rdpi = new ReadLineProcessInput();
-  #parseArgs = new StartParserArgs();
-  #userName = "";
+
+  #parser = new ParseArgs({
+    username: {
+      type: "string",
+    },
+  });
 
   ParseArgs = (argv) => {
-    const result = this.#parseArgs.Parse(argv);
+    const result = this.#parser.Parse(argv);
+
     if (result) {
-      this.#printUserName(result);
-      this.#rdpi.StartProcessInput(this.#userName);
+      this.#printUserName(result.values.username);
+      this.#rdpi.StartProcessInput(result.values.username);
     } else {
       console.log("Не было указано имя");
       console.log("Добавлено Дефолтное Имя User");
       this.#printUserName("User");
-      this.#rdpi.StartProcessInput(this.#userName);
+      this.#rdpi.StartProcessInput("User");
     }
   };
 
   #printUserName(name) {
     console.log(`Welcome to the File Manager, ${name}!`);
     console.log(WELCOM_FILE_MANAGER);
-    this.#userName = name;
   }
 }
 
@@ -84,20 +65,16 @@ class ReadLineProcessInput {
       process.exit();
     }
 
-    this.#manager.Execute(input, () => {
-      console.log("123");
-      this.#printPromt();
-    });
+    this.#manager.Execute(input);
 
     this.#printPromt();
   };
 
   #printPromt = () => {
-    const currPath = this.#manager.Path.CurrPath.replace(
-      "FileManager",
-      ""
-    ).replace(".//", "");
-    const prompt = `FileManager>>[${this.#userName}]~/${currPath}/$ `;
+    const path = this.#manager.Path.CurrPath;
+
+    const text = "You are currently in ";
+    const prompt = `${text}[${this.#userName}@${path}]$ `;
     this.#rl.setPrompt(prompt);
 
     this.#rl.prompt();
