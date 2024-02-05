@@ -1,27 +1,40 @@
 import { IExecuteValue } from "./BaseCommand.mjs";
-import { checkFile, newParseCommand } from "../utils/utils.mjs";
-import { unlink } from "fs/promises";
+import {
+  checkAccess,
+  checkStat,
+  printInvalidInput,
+  printOperationFailed,
+} from "../utils/utils.mjs";
+import { unlink, rm } from "fs/promises";
 
 export class CommandRM extends IExecuteValue {
-  async Execute(value) {
-    const result = newParseCommand(value);
+  async Execute(args) {
+    if (args.length > 1 || args.length === 0) {
+      printInvalidInput();
+      return;
+    }
 
-    console.log(result);
-    this.#removeFile(result.command);
+    this.#removeFile(args[0]);
   }
 
   async #removeFile(file) {
     const path = `${this.Manager.Path.CurrPath}/${file}`;
     try {
-      const result = await checkFile(path);
+      const result = await checkAccess(path);
 
       if (result === false) throw new Error("FS operation failed");
 
-      console.log("Удаляю...");
-      await unlink(path, true);
+      const stat = await checkStat(path);
+
+      if (stat.isFile()) {
+        await unlink(path, true);
+      }
+
+      if (stat.isDirectory()) {
+        await rm(path, { recursive: true });
+      }
     } catch (err) {
-      console.error(err);
-      throw err;
+      printOperationFailed();
     }
   }
 }

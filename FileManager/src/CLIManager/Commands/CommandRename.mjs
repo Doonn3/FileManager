@@ -1,6 +1,6 @@
 import { IExecuteValue } from "./BaseCommand.mjs";
 import { rename } from "fs/promises";
-import { newParseCommand, checkFile } from "../utils/utils.mjs";
+import { newParseCommand, checkAccess } from "../utils/utils.mjs";
 
 export class CommandRename extends IExecuteValue {
   async Execute(value) {
@@ -15,8 +15,8 @@ export class CommandRename extends IExecuteValue {
     const newPath = `${this.Manager.Path.CurrPath}/${newFile}`;
     console.log(oldPath);
     try {
-      const input = await checkFile(oldPath);
-      const out = await checkFile(newPath);
+      const input = await checkAccess(oldPath);
+      const out = await checkAccess(newPath);
 
       console.log(input);
 

@@ -1,54 +1,55 @@
 import { IExecuteValue } from "./BaseCommand.mjs";
 
 import {
-  checkFile,
-  checkStatus,
+  checkAccess,
+  checkStat,
   printInvalidInput,
   printOperationFailed,
 } from "../utils/utils.mjs";
 
+import path from "path";
 import { createReadStream, createWriteStream } from "fs";
 import { cp } from "fs/promises";
 
 export class CommandCopy extends IExecuteValue {
-  async Execute(value) {
-    const pathFile = value[0];
-    const newPathFile = value[1];
+  async Execute(args) {
+    if (args.length > 2 || args.length === 0 || args.length < 2) {
+      printInvalidInput();
+      return;
+    }
+
+    const pathFile = args[0];
+    const newPathFile = args[1];
 
     await this.#copyFiles(pathFile, newPathFile);
   }
 
   async #copyFiles(oldF, newF) {
     const oldPath = `${this.Manager.Path.CurrPath}/${oldF}`;
-    const newPath = `${this.Manager.Path.CurrPath}/${newF}`;
 
-    const resultOld = await checkFile(oldPath);
-    const resultNew = await checkFile(newPath);
+    const newPath = path.join(this.Manager.Path.CurrPath, newF, oldF);
+
+    const resultOld = await checkAccess(oldPath);
+
+    console.log(resultOld);
 
     if (resultOld === false) {
       printOperationFailed();
       return;
     }
-
-    if (resultNew === true) {
-      printOperationFailed();
-      return;
-    }
-
     try {
-      const result = await checkStatus(oldPath);
+      const result = await checkStat(oldPath);
 
       if (result.isFile()) {
-        const readableStream = await createReadStream(oldPath);
+        const readableStream = createReadStream(oldPath);
 
-        const writableStream = await createWriteStream(newPath);
+        const writableStream = createWriteStream(newPath);
 
         readableStream.pipe(writableStream);
 
-        writableStream.on("end", () => {
+        readableStream.on("end", () => {
           console.log("Файл успешно скопирован.\n");
           readableStream.destroy();
-          writableStream.destroy();
         });
 
         // Обработка ошибок
@@ -58,14 +59,15 @@ export class CommandCopy extends IExecuteValue {
         });
 
         writableStream.on("error", (error) => {
+          console.log(error);
           printOperationFailed();
           writableStream.destroy();
         });
       }
 
-      if (result.isDirectory()) {
-        cp(oldPath, newPath, { recursive: true });
-      }
+      // if (result.isDirectory()) {
+      // cp(oldPath, newPath, { recursive: true });
+      // }
     } catch (error) {
       printInvalidInput();
     }

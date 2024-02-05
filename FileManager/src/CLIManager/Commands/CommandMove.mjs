@@ -1,8 +1,8 @@
 import { IExecuteValue } from "./BaseCommand.mjs";
 
 import {
-  checkFile,
-  checkStatus,
+  checkAccess,
+  checkStat,
   printInvalidInput,
   printOperationFailed,
 } from "../utils/utils.mjs";
@@ -13,25 +13,32 @@ import { cp, unlink } from "fs/promises";
 import path from "path";
 
 export class CommandMove extends IExecuteValue {
-  async Execute(value) {
-    const pathFile = value[0];
-    const newPathFile = value[1];
+  async Execute(args) {
+    if (args.length > 2 || args.length === 0 || args.length < 2) {
+      printInvalidInput();
+      return;
+    }
 
-    if (!newPathFile) return;
+    const pathFile = args[0];
+    const newPathFile = args[1];
 
     await this.#moveFile(pathFile, newPathFile);
   }
 
   async #moveFile(source, moveTo) {
     const sourceFilePath = `${this.Manager.Path.CurrPath}/${source}`;
-    const destinationFolder = `${this.Manager.Path.CurrPath}/${moveTo}`;
-    // const destinationFilePath = path.join(destinationFolder, sourceFilePath);
+    // const destinationFolder = `${this.Manager.Path.CurrPath}/${moveTo}`;
+    const destinationFilePath = path.join(
+      this.Manager.Path.CurrPath,
+      moveTo,
+      source
+    );
 
-    console.log(sourceFilePath);
+    // console.log(sourceFilePath);
     // console.log(destinationFilePath);
-    console.log(destinationFolder);
+    // console.log(destinationFolder);
 
-    const resultSource = await checkFile(sourceFilePath);
+    const resultSource = await checkAccess(sourceFilePath);
 
     if (resultSource === false) {
       printOperationFailed();
@@ -39,17 +46,17 @@ export class CommandMove extends IExecuteValue {
     }
 
     try {
-      const result = await checkStatus(sourceFilePath);
+      const result = await checkStat(sourceFilePath);
 
       if (result.isFile()) {
-        const sourceStream = await createReadStream(sourceFilePath);
+        const sourceStream = createReadStream(sourceFilePath);
 
-        const destinationStream = await createWriteStream(destinationFolder);
+        const destinationStream = createWriteStream(destinationFilePath);
 
         sourceStream.pipe(destinationStream);
 
         sourceStream.on("end", () => {
-          console.log("Файл успешно скопирован.\n");
+          console.log("Файл успешно перемещён.\n");
           unlink(sourceFilePath);
           sourceStream.destroy();
         });
@@ -62,8 +69,11 @@ export class CommandMove extends IExecuteValue {
 
         destinationStream.on("error", (error) => {
           console.error("Ошибка при записи в целевой файл:", error);
+          printOperationFailed();
           destinationStream.destroy();
         });
+      } else {
+        printOperationFailed();
       }
     } catch (error) {
       printInvalidInput();

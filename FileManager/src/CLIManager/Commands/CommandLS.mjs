@@ -1,12 +1,12 @@
 import { IExecute } from "./BaseCommand.mjs";
 import { readdir, stat } from "fs/promises";
-import { checkFile } from "../utils/utils.mjs";
+import { checkAccess } from "../utils/utils.mjs";
 
 export class CommandLS extends IExecute {
   async Execute() {
     const path = this.Manager.Path.CurrPath;
     try {
-      const result = await checkFile(path);
+      const result = await checkAccess(path);
 
       if (result) {
         const files = await readdir(path);

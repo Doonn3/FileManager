@@ -1,29 +1,48 @@
+import {
+  printInvalidInput,
+  checkStat,
+  printOperationFailed,
+  checkAccess,
+} from "../utils/utils.mjs";
 import { IExecuteValue } from "./BaseCommand.mjs";
 
-import { statSync } from "fs";
-
 export class CommandCD extends IExecuteValue {
-  async Execute(value) {
-    const temp = this.Manager.Path.CurrPath + "/" + value;
-    const result = this.#checkPathType(temp);
+  async Execute(args) {
+    let require = {};
+
+    args.forEach((param) => {
+      if (param.trim() !== "") {
+        require[param] = param;
+      }
+    });
+
+    const keys = Object.keys(require);
+
+    if (keys.length === 0 || keys.length > 1) {
+      printInvalidInput();
+      return;
+    }
+
+    const param = require[keys[0]];
+
+    const temp = this.Manager.Path.CurrPath + "/" + param;
+    const result = await this.#statusPath(temp);
     if (result) {
-      this.Manager.Path.CurrPath = value;
+      this.Manager.Path.CurrPath = param;
     }
   }
 
-  #checkPathType(path) {
+  async #statusPath(path) {
     try {
-      const stats = statSync(path);
+      const resultAccess = await checkAccess(path);
 
-      if (stats.isFile()) {
-        return false;
-      } else if (stats.isDirectory()) {
-        return true;
-      } else {
-        return false;
-      }
+      const resultStats = await checkStat(path);
+
+      if (resultAccess === false) throw new Error();
+      if (resultStats.isFile()) throw new Error();
+      return true;
     } catch (error) {
-      console.log("Ошибка при определении типа пути:", error);
+      printOperationFailed();
       return false;
     }
   }

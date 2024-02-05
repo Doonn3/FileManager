@@ -1,32 +1,35 @@
 import { IExecuteValue } from "./BaseCommand.mjs";
-import { printInvalidInput, printOperationFailed } from "../utils/utils.mjs";
+import {
+  checkAccess,
+  printInvalidInput,
+  printOperationFailed,
+} from "../utils/utils.mjs";
 import { createHash } from "crypto";
 import { createReadStream } from "fs";
 
 export class CommandHashCalc extends IExecuteValue {
-  async Execute(value) {
-    console.log(value, "<><><>>");
-    if (!value || value.length < 1 || value.join().length < 1) {
+  async Execute(args) {
+    if (args.length > 1 || args.length === 0) {
       printInvalidInput();
       return;
     }
-
-    await this.#calculateHash(value);
+    await this.#calculateHash(args);
   }
 
   async #calculateHash(file) {
     const pathToFile = `${this.Manager.Path.CurrPath}/${file}`;
-
     const hash = createHash("sha256");
     try {
+      const access = await checkAccess(pathToFile);
+      if (access === false) throw new Error();
+
       const input = createReadStream(pathToFile, "utf-8");
 
       input.on("readable", () => {
         const data = input.read();
         if (data) {
           const result = hash.update(data);
-          console.log(`HEX: ${result.digest("hex")}`);
-          console.log(`HEX: ${result}`);
+          console.log(`${result.digest("hex")}`);
         }
       });
 
@@ -36,7 +39,5 @@ export class CommandHashCalc extends IExecuteValue {
     } catch (error) {
       printOperationFailed();
     }
-
-    // Write your code here
   }
 }
